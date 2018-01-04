@@ -1,0 +1,82 @@
+
+import org.apache.zookeeper.CreateMode;
+import org.apache.zookeeper.KeeperException;
+import org.apache.zookeeper.ZooDefs;
+import org.apache.zookeeper.ZooKeeper;
+import org.apache.zookeeper.data.Stat;
+
+import java.io.IOException;
+import java.util.List;
+
+public class ZKLink {
+
+    ZooKeeper zk;
+
+    public ZKLink(String zkURL, zkClient.ClientNodeWatcher clientNodeWatcher){
+        try {
+            zk = new ZooKeeper(zkURL,1000000,clientNodeWatcher);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    //Write t node
+    public void setNodeData(String nodePath, String newData){
+
+        try {
+            byte[] data = newData.getBytes();
+            zk.setData(nodePath, data, zk.exists(nodePath, true).getVersion());
+            System.out.println("newData är: " + newData);
+        } catch (KeeperException e) {
+            e.printStackTrace();
+            System.out.println(e.getMessage());
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            System.out.println(e.getMessage());
+        }
+    }
+
+    //read to node
+    public String getNodeData(String path){
+        String data = "nada";
+        try{
+        byte[] bn = zk.getData(path,false,null);
+        data = new String(bn, "UTF-8");
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+        }finally {
+            return data;
+        }
+    }
+    public String createNode(String nodePath, boolean ephimeral) {
+
+        try {
+            Stat nodeStat = zk.exists(nodePath,false);
+            if(nodeStat != null){
+                return nodePath;
+            }else{
+                return zk.create(nodePath, new byte[0], ZooDefs.Ids.OPEN_ACL_UNSAFE, (ephimeral ? CreateMode.EPHEMERAL_SEQUENTIAL : CreateMode.PERSISTENT));
+            }
+        } catch (KeeperException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public boolean watchNode(String node, boolean watch){
+        boolean watched = false;
+        try {
+            final Stat nodeStat =  zk.exists(node, watch);
+
+            if(nodeStat != null) {
+                watched = true;
+            }
+
+        } catch (KeeperException | InterruptedException e) {
+            throw new IllegalStateException(e);
+        }
+
+        return watched;
+    }
+}
