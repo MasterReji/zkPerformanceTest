@@ -8,16 +8,19 @@ import java.util.List;
 public class zkClient implements Runnable {
 
 
+
     private final String TEST_NODE = "/test";
     private final String WATCH_NODE = "/watch";
     private String nodePath = null;
     private int myid = 0;
+    private int nodecounter = 0;
     ZKLink zkLink = null;
     private String myNodePath;
     private String watchNodePath;
-    public zkClient(String zkHost, int n) {
+    public zkClient(String zkHost, int n, int nodesPerClient) {
         zkLink = new ZKLink(zkHost, new ClientNodeWatcher());
         myid=n;
+        nodecounter = nodesPerClient;
     }
 
 
@@ -35,12 +38,16 @@ public class zkClient implements Runnable {
         watchNodePath = zkLink.createNode(WATCH_NODE, false);
         if (watchNodePath == null) System.out.println("Could not access zookeeper path: " + WATCH_NODE);
         zkLink.watchNode(WATCH_NODE, true);
-        myNodePath = zkLink.createNode("/node"+myid, false);
-        if(myNodePath == null) {
+        while(nodecounter-- > 0)
+        myNodePath = zkLink.createNode("/node"+myid + "_" + nodecounter, false);
+
+
+
+/*        if(myNodePath == null) {
             System.out.println("Could not create " + myNodePath);
         }else
             System.out.println("Skapade: " + myNodePath);
-
+/***/
 
     }
 

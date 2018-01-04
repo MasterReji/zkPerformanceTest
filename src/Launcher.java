@@ -5,19 +5,29 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+
 public class Launcher {
 
     public static void main(String[] args){
 
+/**
+ * TOT_NO_OF_NODES must be 10 000
+ * noOfClients must be 1 , 2 , 4, 5 , 10 , 50 ,100, 200,250,400,500,625,1000,
+ *
+ * */
+        final int TOT_NO_OF_NODES = 10;
+        int noOfClients = 5;
+        int nodesPerClient = TOT_NO_OF_NODES/noOfClients;
+
         String zkHost = "192.168.0.115:2181,192.168.0.115:2182,192.168.0.115:2183";
         //ClientNode cN = new ClientNode(zkHost);
         //cN.run();
-        int n =100;
 
-        while(n-- != 0) {
+
+        while(noOfClients-- != 0) {
 
             final ExecutorService service = Executors.newSingleThreadExecutor();
-            final Future<?> status = service.submit(new zkClient(zkHost , n));
+            final Future<?> status = service.submit(new zkClient(zkHost , noOfClients, nodesPerClient));
 
             try {
                 status.get();
