@@ -12,15 +12,16 @@ public class ZKLink {
 
     ZooKeeper zk;
 
-    public ZKLink(String zkURL, zkClient.ClientNodeWatcher clientNodeWatcher){
+    public ZKLink(String zkURL, zkClient.ClientNodeWatcher clientNodeWatcher) {
         try {
-            zk = new ZooKeeper(zkURL,1000000,clientNodeWatcher);
+            zk = new ZooKeeper(zkURL, 1000000, clientNodeWatcher);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
     //Write t node
-    public void setNodeData(String nodePath, String newData){
+    public void setNodeData(String nodePath, String newData) {
 
         try {
             byte[] data = newData.getBytes();
@@ -36,24 +37,37 @@ public class ZKLink {
     }
 
     //read to node
-    public String getNodeData(String path){
+    public String getNodeData(String path) {
         String data = "nada";
-        try{
-        byte[] bn = zk.getData(path,false,null);
-        data = new String(bn, "UTF-8");
-        }catch (Exception e){
+        try {
+            byte[] bn = zk.getData(path, false, null);
+            data = new String(bn, "UTF-8");
+        } catch (Exception e) {
             System.out.println(e.getMessage());
-        }finally {
+        } finally {
             return data;
         }
     }
+
+    public void deleteNode(String nodePath) {
+        try {
+            zk.delete(nodePath, zk.exists(nodePath, true).getVersion());
+
+        } catch (KeeperException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+    }
+
     public String createNode(String nodePath, boolean ephimeral) {
 
         try {
-            Stat nodeStat = zk.exists(nodePath,false);
-            if(nodeStat != null){
+            Stat nodeStat = zk.exists(nodePath, false);
+            if (nodeStat != null) {
                 return nodePath;
-            }else{
+            } else {
                 return zk.create(nodePath, new byte[0], ZooDefs.Ids.OPEN_ACL_UNSAFE, (ephimeral ? CreateMode.EPHEMERAL_SEQUENTIAL : CreateMode.PERSISTENT));
             }
         } catch (KeeperException e) {
@@ -64,12 +78,12 @@ public class ZKLink {
         return null;
     }
 
-    public boolean watchNode(String node, boolean watch){
+    public boolean watchNode(String node, boolean watch) {
         boolean watched = false;
         try {
-            final Stat nodeStat =  zk.exists(node, watch);
+            final Stat nodeStat = zk.exists(node, watch);
 
-            if(nodeStat != null) {
+            if (nodeStat != null) {
                 watched = true;
             }
 

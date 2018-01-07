@@ -2,78 +2,69 @@
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 
-import java.util.Collections;
-import java.util.List;
-
 public class zkClient implements Runnable {
-
-
-
-    private final String TEST_NODE = "/test";
-    private final String WATCH_NODE = "/watch";
+    private final String WATCH_NODE_0 = "/watch0";
+    private final String WATCH_NODE_1 = "/watch1";
     private String nodePath = null;
     private int myid = 0;
     private int nodecounter = 0;
+    private int nodesPerClient = 0;
     ZKLink zkLink = null;
-    private String myNodePath;
     private String watchNodePath;
-    public zkClient(String zkHost, int n, int nodesPerClient) {
-        zkLink = new ZKLink(zkHost, new ClientNodeWatcher());
-        myid=n;
-        nodecounter = nodesPerClient;
-    }
 
+    public zkClient(String zkHost, int id, int nodesPerClient) {
+        zkLink = new ZKLink(zkHost, new ClientNodeWatcher());
+        myid=id;
+        nodecounter = nodesPerClient;
+        this.nodesPerClient = nodesPerClient;
+    }
 
     @Override
     public void run() {
-        watchNode();
+        watchNodes();
     }
 
     /**
-     * Method makeLeaderElection
-     */
-    public void watchNode() {
-       // testNodePath = zkLink.createNode(TEST_NODE, false);  //skapar nod
-      //  if (testNodePath == null) System.out.println("Could not access zookeeper path: " + TEST_NODE);
-        watchNodePath = zkLink.createNode(WATCH_NODE, false);
-        if (watchNodePath == null) System.out.println("Could not access zookeeper path: " + WATCH_NODE);
-        zkLink.watchNode(WATCH_NODE, true);
-        while(nodecounter-- > 0)
-        myNodePath = zkLink.createNode("/node"+myid + "_" + nodecounter, false);
+     * när watch0 raderas så skall alla klienter börja skapa sina noder. watch1:an är till för att radera noderna sedan
+     * */
+    public void watchNodes() {
+        watchNodePath = zkLink.createNode(WATCH_NODE_0, false);
+        if (watchNodePath == null) System.out.println("Could not access zookeeper path: " + WATCH_NODE_0);
+        watchNodePath = zkLink.createNode(WATCH_NODE_1, false);
+        if (watchNodePath == null) System.out.println("Could not access zookeeper path: " + WATCH_NODE_1);
 
-
-
-/*        if(myNodePath == null) {
-            System.out.println("Could not create " + myNodePath);
-        }else
-            System.out.println("Skapade: " + myNodePath);
-/***/
-
+        zkLink.watchNode(WATCH_NODE_0, true);
+        zkLink.watchNode(WATCH_NODE_1, true);
     }
 
-    public void sendWriteToNode() {
-        System.out.println("Skriva test_"+myid +" i test-noden. med path: " + myNodePath);
-        zkLink.setNodeData(myNodePath, "test_"+myid);
-        System.out.println("Nu tillbaka till watch");
-        /**/
-
-
-        return;
+    public void createNodes() {
+        while(nodecounter-- > 0)
+            zkLink.createNode("/node"+ myid + "_" + nodecounter, false);
+        nodecounter = nodesPerClient; //counter återställs till ursprungsvärdet
+    }
+    private void deleteNodes() {
+        while(nodecounter-- > 0){
+          zkLink.deleteNode("/node" + myid + "_" + nodecounter);
+          System.out.println("/node" + myid + "_" + nodecounter);
+        }
+        nodecounter = nodesPerClient; //counter återställs till ursprungsvärdet
     }
 
     public class ClientNodeWatcher implements Watcher {
-
         @Override
         public void process(WatchedEvent event) {
 
             final Event.EventType eventType = event.getType();
             if (Event.EventType.NodeDeleted.equals(eventType)) {
-                if (event.getPath().equalsIgnoreCase(WATCH_NODE)) {  //VÅr watch node
-                    System.out.println("vår watch försvann");
-                    sendWriteToNode();
+                if (event.getPath().equalsIgnoreCase(WATCH_NODE_0)) {  //Vår watch node
+                    System.out.println("Watch0 raderas");
+                    createNodes();
+                }
+                if(event.getPath().equalsIgnoreCase(WATCH_NODE_1)){
+                    System.out.println("Wach1 raderas");
+                    deleteNodes();
                 }
             }
         }
     }
-
 }

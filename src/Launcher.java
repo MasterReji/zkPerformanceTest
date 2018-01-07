@@ -19,7 +19,7 @@ public class Launcher {
         int noOfClients = 5;
         int nodesPerClient = TOT_NO_OF_NODES/noOfClients;
 
-        String zkHost = "192.168.0.115:2181,192.168.0.115:2182,192.168.0.115:2183";
+        String zkHost = "127.0.0.1:2181,127.0.0.1:2182,127.0.0.1:2183";
         //ClientNode cN = new ClientNode(zkHost);
         //cN.run();
 
