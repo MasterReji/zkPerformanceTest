@@ -15,11 +15,11 @@ public class Launcher {
  * noOfClients must be 1 , 2 , 4, 5 , 10 , 50 ,100, 200,250,400,500,625,1000,
  *
  * */
-        final int TOT_NO_OF_NODES = 10;
-        int noOfClients = 5;
+        final int TOT_NO_OF_NODES = 10000;
+        int noOfClients = 10;
         int nodesPerClient = TOT_NO_OF_NODES/noOfClients;
 
-        String zkHost = "127.0.0.1:2181,127.0.0.1:2182,127.0.0.1:2183";
+        String zkHost = "10.130.95.80:2181,10.130.95.80:2182,10.130.95.80:2183";
         //ClientNode cN = new ClientNode(zkHost);
         //cN.run();
 
