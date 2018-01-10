@@ -8,7 +8,7 @@ import java.util.concurrent.Future;
 
 public class Launcher {
 
-    public static void main(String[] args){
+    public static void main(String[] args) {
 
 /**
  * TOT_NO_OF_NODES must be 10 000
@@ -16,18 +16,17 @@ public class Launcher {
  *
  * */
         final int TOT_NO_OF_NODES = 10000;
-        int noOfClients = 10;
+        int noOfClients = 1;
         int nodesPerClient = TOT_NO_OF_NODES/noOfClients;
 
         String zkHost = "10.130.95.80:2181,10.130.95.80:2182,10.130.95.80:2183";
         //ClientNode cN = new ClientNode(zkHost);
         //cN.run();
 
-
         while(noOfClients-- != 0) {
 
             final ExecutorService service = Executors.newSingleThreadExecutor();
-            final Future<?> status = service.submit(new zkClient(zkHost , noOfClients, nodesPerClient));
+            final Future<?> status = service.submit(new zkClient(zkHost , noOfClients, TOT_NO_OF_NODES));
 
             try {
                 status.get();

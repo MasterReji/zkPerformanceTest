@@ -51,8 +51,9 @@ public class ZKLink {
 
     public void deleteNode(String nodePath) {
         try {
-            zk.delete(nodePath, zk.exists(nodePath, true).getVersion());
-
+            if (zk.exists(nodePath, false) != null) {
+                zk.delete(nodePath, zk.exists(nodePath, true).getVersion());
+            }
         } catch (KeeperException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
@@ -64,12 +65,12 @@ public class ZKLink {
     public String createNode(String nodePath, boolean ephimeral) {
 
         try {
-            Stat nodeStat = zk.exists(nodePath, false);
-            if (nodeStat != null) {
-                return nodePath;
-            } else {
-                return zk.create(nodePath, new byte[0], ZooDefs.Ids.OPEN_ACL_UNSAFE, (ephimeral ? CreateMode.EPHEMERAL_SEQUENTIAL : CreateMode.PERSISTENT));
+            if (zk.exists(nodePath, true) == null) {
+                zk.create(nodePath, new byte[0], ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+               // System.out.println("nyckellängd: " +  nodePath.getBytes().length);
+                //System.out.
             }
+            else return null;
         } catch (KeeperException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
@@ -92,5 +93,9 @@ public class ZKLink {
         }
 
         return watched;
+    }
+
+    public void close() throws InterruptedException {
+        zk.close();
     }
 }
