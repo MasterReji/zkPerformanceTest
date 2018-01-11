@@ -65,12 +65,14 @@ public class ZKLink {
     public String createNode(String nodePath, boolean ephimeral) {
 
         try {
-            if (zk.exists(nodePath, true) == null) {
+           // if (zk.exists(nodePath, true) == null) {
                 zk.create(nodePath, new byte[0], ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
                // System.out.println("nyckellängd: " +  nodePath.getBytes().length);
                 //System.out.
-            }
-            else return null;
+          /*  }
+            else {
+                return null;
+            }/***/
         } catch (KeeperException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {

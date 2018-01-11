@@ -15,8 +15,9 @@ public class Launcher {
  * noOfClients must be 1 , 2 , 4, 5 , 10 , 50 ,100, 200,250,400,500,625,1000,
  *
  * */
-        final int TOT_NO_OF_NODES = 10000;
-        int noOfClients = 1;
+        final int TOT_NO_OF_NODES = 1000;
+        int noOfClients = 1000;
+        int firstClient = noOfClients-1;
         int nodesPerClient = TOT_NO_OF_NODES/noOfClients;
 
         String zkHost = "10.130.95.80:2181,10.130.95.80:2182,10.130.95.80:2183";
@@ -26,7 +27,7 @@ public class Launcher {
         while(noOfClients-- != 0) {
 
             final ExecutorService service = Executors.newSingleThreadExecutor();
-            final Future<?> status = service.submit(new zkClient(zkHost , noOfClients, TOT_NO_OF_NODES));
+            final Future<?> status = service.submit(new zkClient(zkHost , noOfClients, TOT_NO_OF_NODES, firstClient));
 
             try {
                 status.get();
