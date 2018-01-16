@@ -22,10 +22,13 @@ public class zkClient implements Runnable {
     public void run() {
         try {
             createNodes();
+            Thread.sleep(15000);
+            deleteNodes();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        //  watchNodes();
+
+        //watchNodes();
     }
 
     /**
@@ -34,26 +37,25 @@ public class zkClient implements Runnable {
     private void watchNodes() {
         if (firstClient == myid) {  //bara första clienten skapar noderna
             watchNodePath = zkLink.createNode(WATCH_NODE_0, false);
-           //if (watchNodePath == null) System.out.println("Could not access zookeeper path: " + WATCH_NODE_0);
-            watchNodePath = zkLink.createNode(WATCH_NODE_1, false);
+            //if (watchNodePath == null) System.out.println("Could not access zookeeper path: " + WATCH_NODE_0);
+
             //if (watchNodePath == null) System.out.println("Could not access zookeeper path: " + WATCH_NODE_1);
         }
         zkLink.watchNode(WATCH_NODE_0, true);
-        zkLink.watchNode(WATCH_NODE_1, true);
+
     }
 
-    private synchronized void createNodes() throws InterruptedException {
-
+    private void createNodes() throws InterruptedException {
         for (int i = nodecounter; i > 0; i--) {
             zkLink.createNode("/node" + myid + "_" + i, false);
         }
-        if (firstClient == myid){
-            watchNodePath =zkLink.createNode(WATCH_NODE_1, false);
+        if (firstClient == myid) {
+            watchNodePath = zkLink.createNode(WATCH_NODE_1, false);
         }
         zkLink.watchNode(WATCH_NODE_1, true);
     }
 
-    private synchronized void deleteNodes() throws InterruptedException {
+    private void deleteNodes() throws InterruptedException {
         for (int i = nodecounter; i > 0; i--) {
             zkLink.deleteNode("/node" + myid + "_" + i);
         }
@@ -74,7 +76,7 @@ public class zkClient implements Runnable {
                         e.printStackTrace();
                     }
                 } else if (event.getPath().equalsIgnoreCase(WATCH_NODE_1)) {
-                   // System.out.println("Watch1 raderas");
+                    // System.out.println("Watch1 raderas");
                     try {
                         deleteNodes();
                     } catch (InterruptedException e) {

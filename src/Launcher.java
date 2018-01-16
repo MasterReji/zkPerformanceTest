@@ -15,26 +15,17 @@ public class Launcher {
  * noOfClients must be 1 , 2 , 4, 5 , 10 , 50 ,100, 200,250,400,500,625,1000,
  *
  * */
-        final int TOT_NO_OF_NODES = 1000;
-        int noOfClients = 1000;
-        int firstClient = noOfClients-1;
-        int nodesPerClient = TOT_NO_OF_NODES/noOfClients;
+        final int TOT_NO_OF_NODES = 100;
+        int noOfClients = 500;
+        int firstClient = noOfClients - 1;
+        int nodesPerClient = TOT_NO_OF_NODES / noOfClients;
+        String zkHost = "192.168.0.101:2181,192.168.0.101:2182,192.168.0.101:2183";
+        //String zkHost = "10.200.59.205:2181,10.200.59.205:2182,10.200.59.205:2183";
 
-        String zkHost = "10.130.95.80:2181,10.130.95.80:2182,10.130.95.80:2183";
-        //ClientNode cN = new ClientNode(zkHost);
-        //cN.run();
+        while (noOfClients-- != 0) {
 
-        while(noOfClients-- != 0) {
+            new Thread(new zkClient(zkHost, noOfClients, TOT_NO_OF_NODES, firstClient)).start();
 
-            final ExecutorService service = Executors.newSingleThreadExecutor();
-            final Future<?> status = service.submit(new zkClient(zkHost , noOfClients, TOT_NO_OF_NODES, firstClient));
-
-            try {
-                status.get();
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
-                service.shutdown();
-            }
         }
     }
 }
